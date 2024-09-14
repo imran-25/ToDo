@@ -10,6 +10,7 @@ class ToDoController extends Controller
 {
     $todos = ToDo::all();
     return response()->json($todos);
+
 }
 
 public function store(Request $request)
