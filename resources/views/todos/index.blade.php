@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>To-Do List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="container mt-5">
         <h1 class="text-center">To-Do List</h1>
-        
+
         <!-- Add new To-Do -->
         <div class="input-group mb-3">
             <input type="text" id="newTodoTitle" class="form-control" placeholder="New Task">
             <button class="btn btn-primary" id="addTodoButton">Add Task</button>
         </div>
-        
+
         <!-- To-Do List -->
         <ul class="list-group" id="todoList">
             <!-- Items will be dynamically added here -->
         </ul>
     </div>
-    
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -35,6 +38,8 @@
                     data.forEach(function(todo) {
                         appendTodoToList(todo);
                     });
+                }).fail(function() {
+                    alert("Failed to load To-Dos. Please check your API or server.");
                 });
             }
 
@@ -42,7 +47,9 @@
             $('#addTodoButton').click(function() {
                 let title = $('#newTodoTitle').val();
                 if (title !== '') {
-                    $.post('/api/todos', { title: title }, function(todo) {
+                    $.post('/api/todos', {
+                        title: title
+                    }, function(todo) {
                         appendTodoToList(todo);
                         $('#newTodoTitle').val(''); // Clear input
                     });
@@ -69,14 +76,21 @@
                 let todoId = todoItem.data('id');
                 let isCompleted = $(this).data('completed');
 
+
                 $.ajax({
+                    
                     url: `/api/todos/${todoId}`,
                     type: 'PUT',
-                    data: { completed: !isCompleted },
+                    data: {
+                        completed: !isCompleted
+                    },
                     success: function(updatedTodo) {
                         let button = todoItem.find('.completeTodoButton');
                         button.text(updatedTodo.completed ? 'Completed' : 'Complete');
                         button.data('completed', updatedTodo.completed);
+                    },
+                    error: function() {
+                        alert('Failed to update To-Do status.');
                     }
                 });
             });
@@ -97,4 +111,5 @@
         });
     </script>
 </body>
+
 </html>
